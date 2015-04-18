@@ -1,0 +1,36 @@
+{
+    "name": "tom-power/zf-crud",
+    "description": "",
+    "type": "library",
+    "keywords": [
+        "zf2",
+        "crud"
+    ],
+    "homepage": "https://github.com/tom-power/zf-crud",
+    "authors": [
+        {
+            "name": "Tom Power",
+            "email": "tpower21@gmail.com",
+            "homepage": "http://tp21.se"
+        }
+    ],
+    "repositories":
+            [
+                {
+                    "type": "vcs",
+                    "url": "https://github.com/tom-power/ZfcTwitterBootstrap"
+                }
+            ],
+    "require": {
+        "php": ">=5.3.3",
+        "zendframework/zendframework": "2.2.5",
+        "doctrine/doctrine-module": "0.7",
+        "doctrine/doctrine-orm-module": "0.7",
+        "mwillbanks/zfc-twitter-bootstrap": "@dev"
+    },
+    "autoload": {
+        "psr-0": {
+            "ZfCrud": "src"
+        }
+    }
+}

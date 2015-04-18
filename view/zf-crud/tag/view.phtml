@@ -1,0 +1,21 @@
+<?php
+$title = 'View ZfCrud';
+$this->headTitle($title);
+//$this->headLink()->appendStylesheet('/css/form.css');
+?>
+<h1><?php echo $this->escapeHtml($title); ?></h1>
+
+<?php
+$form->setAttribute('class', 'form-horizontal');
+foreach ($form->getElements() as $key => $element) {
+    if ($key == 'submit') {
+        $element->setAttribute('class', 'hide-submit');
+    } else {
+        $element->setAttribute('disabled', 'disabled');
+    }
+}
+echo $this->ztbForm($form);
+?>
+<p>
+  <a href="<?php echo $this->url('ZfCrud', array('action' => 'qr', 'id' => $tag->getId())); ?>">Get QR codes</a>
+</p>

@@ -1,0 +1,35 @@
+<?php
+$title = 'Edit Taggable';
+$this->headTitle($title);
+?>
+<h1><?php echo $this->escapeHtml($title); ?></h1>
+
+
+
+<?php
+$form->setAttribute('action', $this->url('zfcrud/default', array('controller' => 'taggable', 'action' => 'edit', 'id' => $taggable->getId())));
+$form->setAttribute('class', 'form-horizontal');
+
+echo $this->ztbForm($form);
+?>
+
+
+<script type="text/javascript">
+    function getCurrentCount() {
+        return $("[id^='fieldset-tags[']").length;
+    }
+
+    $("#addtag").click(function () {
+        var currentCount = getCurrentCount();
+        console.log(currentCount);
+        var template = $('form > fieldset > span').data('template');
+        template = template.replace(/__index__/g, currentCount);
+        $('form > fieldset').append(template);
+        return false;
+    });
+    $("#removetag").click(function () {
+        var currentCount = getCurrentCount() - 1;
+        $('#fieldset-tags\\[' + currentCount + '\\]').remove();
+        return false;
+    });
+</script>
