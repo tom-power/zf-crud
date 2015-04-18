@@ -29,8 +29,8 @@
         "mwillbanks/zfc-twitter-bootstrap": "@dev"
     },
     "autoload": {
-        "psr-0": {
-            "ZfCrud": "src"
+        "psr-4": {
+            "ZfCrud": "src/"
         }
     }
 }

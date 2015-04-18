@@ -87,8 +87,6 @@ abstract class AbstractZfCrudController extends AbstractActionController {
         return $this->redirectIndex();
     }
 
-
-
     // <editor-fold defaultstate="collapsed" desc="action helpers">
     private function getCustomErrorMessage($errorFunc, $entity) {
         return $errorFunc != null ? $errorFunc($entity) : null;
@@ -147,11 +145,11 @@ abstract class AbstractZfCrudController extends AbstractActionController {
     }
 
     public function redirectIndex() {
-        return $this->redirect()->toRoute('zfcrud/default', array('controller' => $this->getEntityName(), 'action' => 'index'));
+        $route = lcfirst($this->getNameSpaceRoot()) . '/default';
+        return $this->redirect()->toRoute($route, array('controller' => $this->getEntityName(), 'action' => 'index'));
     }
+
     // </editor-fold>
-
-
     // </editor-fold>
     // <editor-fold defaultstate="collapsed" desc="general helpers">
     protected function isAdmin() {
@@ -176,16 +174,22 @@ abstract class AbstractZfCrudController extends AbstractActionController {
     }
 
     protected function getEntityFormStr() {
-        return 'ZfCrud\Form\\' . ucfirst($this->getEntityName()) . 'Form';
+        return $this->getNameSpaceRoot() . '\Form\\' . ucfirst($this->getEntityName()) . 'Form';
     }
 
     protected function getEntityStr() {
-        return 'ZfCrud\Entity\\' . ucfirst($this->getEntityName());
+        return $this->getNameSpaceRoot() . '\Entity\\' . ucfirst($this->getEntityName());
+    }
+
+    protected function getNameSpaceRoot() {
+        $reflect = new \ReflectionClass($this);
+        $namespaceName = $reflect->getNamespaceName();
+        return explode('\\', $namespaceName)[0];
     }
 
     protected function getEntityName() {
-        $controller = $this->params('controller');
-        return lcfirst(explode("\\", $controller)[2]);
+        $reflect = new \ReflectionClass($this);
+        return lcfirst(str_replace('Controller', '', $reflect->getShortName()));
     }
 
     // </editor-fold>
@@ -222,6 +226,7 @@ abstract class AbstractZfCrudController extends AbstractActionController {
         }
         return $this->entityManager;
     }
+
     // </editor-fold>
     // </editor-fold>
 }
