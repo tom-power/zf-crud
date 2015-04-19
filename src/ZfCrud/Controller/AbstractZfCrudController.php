@@ -8,6 +8,25 @@ use DoctrineORMModule\Stdlib\Hydrator\DoctrineEntity;
 
 abstract class AbstractZfCrudController extends AbstractActionController {
 
+    /**
+     * @var ViewModel
+     * @access protected
+     */
+    protected $viewModel;
+
+    public function onDispatch(\Zend\Mvc\MvcEvent $event) {
+        $reflectionClass = new \ReflectionClass($this);
+        $basename = dirname($reflectionClass->getFileName());
+        $templatePathStack = $event->getApplication()->getServiceManager()->get('Zend\View\Resolver\TemplatePathStack');
+        $templatePathStack->setLfiProtection(false);
+        $templatePathStack->addPath($basename . '/../../../../../vendor/tom-power/zf-crud/view/zf-crud');
+        $this->viewModel = new ViewModel();
+        $this->viewModel->setTemplate('index/' . $this->params('action') . '.phtml');
+        $this->viewModel->setVariable('entityName', $this->getEntityName());
+        $this->viewModel->setVariable('module', explode('\\', $this->params('controller'))[0]);
+        parent::onDispatch($event);
+    }
+
     public function indexAction() {
         return $this->index();
     }
@@ -38,7 +57,11 @@ abstract class AbstractZfCrudController extends AbstractActionController {
     protected function index($pluralEntityName = null) {
         $entities = $this->getRepository()->findBy(array(), array('id' => 'ASC'));
         $thisPluralEntityName = $pluralEntityName != null ? $pluralEntityName : $this->getEntityName() . 's';
-        return new ViewModel(array($thisPluralEntityName => $entities));
+        return $this->viewModel->setVariables(array(
+                    $thisPluralEntityName => $entities,
+                    'pluralEntityName' => $thisPluralEntityName,
+                        )
+        );
     }
 
     /**
@@ -50,7 +73,7 @@ abstract class AbstractZfCrudController extends AbstractActionController {
      * @throws \Doctrine\DBAL\DBALException
      */
     protected function edit($edit, $errorFunc = null, $saveMessageFunc = null) {
-        $entity = $this->getEntityFromRepo($this->params('id'));
+        $entity = $this->setUpEntity();
         $form = $this->setUpForm($entity);
         $request = $this->getRequest();
         $postData = $this->updatePostData($request, $entity);
@@ -67,9 +90,9 @@ abstract class AbstractZfCrudController extends AbstractActionController {
                 return $this->redirectIndex();
             }
         }
-        return new ViewModel(array(
-            $this->getEntityName() => $entity,
-            'form' => $form
+        return $this->viewModel->setVariables(array(
+                    $this->getEntityName() => $entity,
+                    'form' => $form
         ));
     }
 
@@ -91,6 +114,32 @@ abstract class AbstractZfCrudController extends AbstractActionController {
     private function getCustomErrorMessage($errorFunc, $entity) {
         return $errorFunc != null ? $errorFunc($entity) : null;
     }
+
+    private function setUpEntity() {
+        return $this->getEntityFromRepo($this->params('id'));
+//        $this->addRemoveMethodsForCollections($thisEntity);
+    }
+
+//    private function addRemoveMethodsForCollections(&$thisEntity) {
+//        $classMetadata = $this->getEntityManager()->getClassMetadata(get_class($thisEntity));
+//        foreach (array_keys($classMetadata->associationMappings) as $key) {
+//            $removeEntity = 'remove' . ucfirst($key);
+//            $thisEntity->$removeEntity = function ($entities) {
+//                if ($entities == null || empty($entities)) {
+//                    $this->$key->clear();
+//                }
+//                foreach ($entities as $entity) {
+//                    $this->$key->removeElement($entity);
+//                }
+//            };
+//            $addEntity = 'add' . ucfirst($key);
+//            $thisEntity->$addEntity = function ($entities) {
+//                foreach ($entities as $entity) {
+//                    $this->$key->add($entity);
+//                }
+//            };
+//        }
+//    }
 
     public function saveEntity($entity, $saveMessageFunc) {
         try {
@@ -115,8 +164,13 @@ abstract class AbstractZfCrudController extends AbstractActionController {
     }
 
     private function setUpForm($entity) {
-        $form = $this->getForm();
-//        $form->setHydrator(new DoctrineEntity($this->getEntityManager(), $this->getEntityStr()));
+        $entityFormStr = $this->getEntityFormStr();
+        $form = new $entityFormStr($this->getEntityManager());
+//        $form->setup($this->getEntityManager(), $this->getEntity());
+//        $fieldSets = $form->getFieldSets();
+//        foreach ($fieldSets as $fieldSet) {
+//            $fieldSet->getTargetElement()->setup($this->getEntityManager(), new \Taggable\Entity\Tag());
+//        }
         $form->bind($entity);
         return $form;
     }
@@ -161,11 +215,6 @@ abstract class AbstractZfCrudController extends AbstractActionController {
 
     protected function getRepository() {
         return $this->getEntityManager()->getRepository($this->getEntityStr());
-    }
-
-    protected function getForm() {
-        $entityFormStr = $this->getEntityFormStr();
-        return new $entityFormStr($this->getEntityManager());
     }
 
     protected function getEntity() {

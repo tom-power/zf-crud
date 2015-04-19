@@ -1,0 +1,22 @@
+<?php
+$title = 'Add ' . $entityName;
+$this->headTitle($title);
+?>
+<h1><?php echo $this->escapeHtml($title); ?></h1>
+
+<?php
+$form->setAttribute('action', $this->url(lcfirst($module) . '/default', array('controller' => $entityName, 'action' => 'add')));
+$form->setAttribute('class', 'form-horizontal');
+
+echo $this->ztbForm($this->form);
+?>
+
+<script type="text/javascript">
+    $("#addtag").click(function () {
+        var currentCount = $('form > fieldset > fieldset').length;
+        var template = $('form > fieldset > span').data('template');
+        template = template.replace(/__index__/g, currentCount);
+        $('form > fieldset').append(template);
+        return false;
+    });
+</script>

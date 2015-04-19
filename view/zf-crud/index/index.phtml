@@ -1,0 +1,24 @@
+<?php
+$title = $pluralEntityName;
+$this->headTitle($title);
+?>
+<h1><?php echo $this->escapeHtml($title); ?></h1>
+<p><a href="<?php echo $this->url(lcfirst($module) . '/default', array('controller' => $entityName, 'action' => 'add')); ?>">Add new <?= $entityName ?></a></p>
+<table class="table table-bordered table-hover">
+  <tr>
+    <th><?= $entityName ?></th>
+    <th>&nbsp;</th>
+    <th>&nbsp;</th>
+  </tr>
+  <?php foreach (${$pluralEntityName} as $entity) : ?>
+      <tr>
+        <td><?php echo $this->escapeHtml($entity->getName()); ?></td>
+        <td>
+          <a href="<?php echo $this->url(lcfirst($module) . '/default', array('controller' => $entityName, 'action' => 'edit', 'id' => $entity->getId())); ?>">Edit</a>
+        </td>
+        <td>
+          <a href="<?php echo $this->url(lcfirst($module) . '/default', array('controller' => $entityName, 'action' => 'delete', 'id' => $entity->getId())); ?>" onclick="return confirm('Are you sure?')">Delete</a>
+        </td>
+    </tr>
+<?php endforeach; ?>
+</table>

@@ -1,6 +1,6 @@
 {
     "name": "tom-power/zf-crud",
-    "description": "",
+    "description": "Abstract classes for simple crud",
     "type": "library",
     "keywords": [
         "zf2",
@@ -14,23 +14,12 @@
             "homepage": "http://tp21.se"
         }
     ],
-    "repositories":
-            [
-                {
-                    "type": "vcs",
-                    "url": "https://github.com/tom-power/ZfcTwitterBootstrap"
-                }
-            ],
-    "require": {
-        "php": ">=5.3.3",
-        "zendframework/zendframework": "2.2.5",
-        "doctrine/doctrine-module": "0.7",
-        "doctrine/doctrine-orm-module": "0.7",
-        "mwillbanks/zfc-twitter-bootstrap": "@dev"
-    },
     "autoload": {
-        "psr-4": {
+        "psr-0": {
             "ZfCrud": "src/"
-        }
+        },
+        "classmap": [
+            "./"
+        ]
     }
 }
