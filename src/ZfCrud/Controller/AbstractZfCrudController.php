@@ -4,7 +4,6 @@ namespace ZfCrud\Controller;
 
 use Zend\Mvc\Controller\AbstractActionController;
 use Zend\View\Model\ViewModel;
-use DoctrineORMModule\Stdlib\Hydrator\DoctrineEntity;
 
 abstract class AbstractZfCrudController extends AbstractActionController {
 
@@ -15,15 +14,11 @@ abstract class AbstractZfCrudController extends AbstractActionController {
     protected $viewModel;
 
     public function onDispatch(\Zend\Mvc\MvcEvent $event) {
-        $reflectionClass = new \ReflectionClass($this);
-        $basename = dirname($reflectionClass->getFileName());
-        $templatePathStack = $event->getApplication()->getServiceManager()->get('Zend\View\Resolver\TemplatePathStack');
-        $templatePathStack->setLfiProtection(false);
-        $templatePathStack->addPath($basename . '/../../../../../vendor/tom-power/zf-crud/view/zf-crud');
+        $resolver = $event->getApplication()->getServiceManager()->get('Zend\View\Resolver\TemplatePathStack');
         $this->viewModel = new ViewModel();
-        $this->viewModel->setTemplate('index/' . $this->params('action') . '.phtml');
-        $this->viewModel->setVariable('entityName', $this->getEntityName());
-        $this->viewModel->setVariable('module', explode('\\', $this->params('controller'))[0]);
+        if (!$this->hasView($resolver)) {
+            $this->setupView($resolver);
+        }
         parent::onDispatch($event);
     }
 
@@ -48,6 +43,22 @@ abstract class AbstractZfCrudController extends AbstractActionController {
     }
 
     // <editor-fold defaultstate="collapsed" desc="protected">
+    // <editor-fold defaultstate="collapsed" desc="onDispatch methods">
+    protected function hasView($resolver) {
+        $template = lcfirst($this->getModuleName()) . '/' . lcfirst($this->getEntityName()) . '/' . $this->getActionName() . '.phtml';
+        return $resolver->resolve($template);
+    }
+
+    protected function setupView($resolver) {
+        $reflectionClass = new \ReflectionClass($this);
+        $basename = dirname($reflectionClass->getFileName());
+        $resolver->setLfiProtection(false);
+        $resolver->addPath($basename . '/../../../../../vendor/tom-power/zf-crud/view/zf-crud');
+        $this->viewModel->setTemplate('index/' . $this->getActionName() . '.phtml');
+        $this->viewModel->setVariable('entityName', $this->getEntityName());
+        $this->viewModel->setVariable('module', $this->getModuleName());
+    }
+    // </editor-fold>
     // <editor-fold defaultstate="collapsed" desc="action methods">
     /**
      * Index action
@@ -239,6 +250,14 @@ abstract class AbstractZfCrudController extends AbstractActionController {
     protected function getEntityName() {
         $reflect = new \ReflectionClass($this);
         return lcfirst(str_replace('Controller', '', $reflect->getShortName()));
+    }
+
+    protected function getActionName() {
+        return $this->params('action');
+    }
+
+    protected function getModuleName() {
+        return explode('\\', $this->params('controller'))[0];
     }
 
     // </editor-fold>
