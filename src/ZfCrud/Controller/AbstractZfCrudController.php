@@ -57,7 +57,10 @@ abstract class AbstractZfCrudController extends AbstractActionController {
         $this->viewModel->setTemplate('index/' . $this->getActionName() . '.phtml');
         $this->viewModel->setVariable('entityName', $this->getEntityName());
         $this->viewModel->setVariable('module', $this->getModuleName());
+        $this->viewModel->setVariable('route', $this->getRoute());
+        $this->viewModel->setVariable('controllerRoute', $this->getControllerRoute(array()));
     }
+
     // </editor-fold>
     // <editor-fold defaultstate="collapsed" desc="action methods">
     /**
@@ -210,8 +213,27 @@ abstract class AbstractZfCrudController extends AbstractActionController {
     }
 
     public function redirectIndex() {
-        $route = lcfirst($this->getNameSpaceRoot()) . '/default';
-        return $this->redirect()->toRoute($route, array('controller' => $this->getEntityName(), 'action' => 'index'));
+        return $this->redirect()->toRoute($this->getRoute(), $this->getControllerRoute(array('action' => 'index')));
+    }
+
+    public function getControllerRoute($actionIndexArray) {
+        if ($this->isEntityRoute()) {
+            return $actionIndexArray;
+        }
+        return array_merge($actionIndexArray, array('controller' => $this->getEntityName()));
+    }
+
+    public function getRoute() {
+        $route = lcfirst($this->getNameSpaceRoot());
+        if ($this->isEntityRoute()) {
+            return $route;
+        }
+        return $route . '/default';
+    }
+
+    protected function isEntityRoute() {
+        $config = $this->getServiceLocator()->get('config');
+        return isset($config["zfcrud"]['entity_route']);
     }
 
     // </editor-fold>
