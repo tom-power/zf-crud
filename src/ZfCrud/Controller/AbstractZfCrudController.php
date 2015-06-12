@@ -59,6 +59,12 @@ abstract class AbstractZfCrudController extends AbstractActionController {
         $this->viewModel->setVariable('module', $this->getModuleName());
         $this->viewModel->setVariable('route', $this->getRoute());
         $this->viewModel->setVariable('controllerRoute', $this->getControllerRoute(array()));
+        $collections = [];
+        $classMetadata = $this->getEntityManager()->getClassMetadata(get_class($this->getEntity()));
+        foreach ($classMetadata->getAssociationMappings() as $key) {
+            array_push($collections, $key['fieldName']);
+        }
+        $this->viewModel->setVariable('collections', $collections);
     }
 
     // </editor-fold>

@@ -13,23 +13,18 @@ $form->setAttribute('class', 'form-horizontal');
 echo $this->ztbForm($form);
 ?>
 
-
 <script type="text/javascript">
-    function getCurrentCount() {
-        return $("[id^='fieldset-tags[']").length;
-    }
-
-    $("#addtag").click(function () {
-        var currentCount = getCurrentCount();
-        console.log(currentCount);
-        var template = $('form > fieldset > span').data('template');
-        template = template.replace(/__index__/g, currentCount);
-        $('form > fieldset').append(template);
-        return false;
-    });
-    $("#removetag").click(function () {
-        var currentCount = getCurrentCount() - 1;
-        $('#fieldset-tags\\[' + currentCount + '\\]').remove();
-        return false;
-    });
+<?php foreach ($collections as $collection) : ?>
+        $("#add<?= $collection ?>").click(function () {
+            var template = $('form > fieldset > span').data('template');
+            template = template.replace(/__index__/g, $("[id^='fieldset-<?= $collection ?>[']").length);
+            $('form > fieldset').append(template);
+            return false;
+        });
+        $("#remove<?= $collection ?>").click(function () {
+            var currentCount = $("[id^='fieldset-<?= $collection ?>[']").length - 1;
+            $('#fieldset-tags\\[' + currentCount + '\\]').remove();
+            return false;
+        });
+<?php endforeach; ?>
 </script>

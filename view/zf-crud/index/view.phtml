@@ -16,6 +16,3 @@ foreach ($form->getElements() as $key => $element) {
 }
 echo $this->ztbForm($form);
 ?>
-<p>
-  <a href="<?php echo $this->url('ZfCrud', array('action' => 'qr', 'id' => $tag->getId())); ?>">Get QR codes</a>
-</p>
