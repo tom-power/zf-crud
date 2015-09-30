@@ -35,7 +35,7 @@ abstract class AbstractZfCrudController extends AbstractActionController {
     }
 
     public function addAction() {
-        return $this->editAction();
+        return $this->edit(true);
     }
 
     public function deleteAction() {
@@ -92,7 +92,7 @@ abstract class AbstractZfCrudController extends AbstractActionController {
      * @return ViewModel
      * @throws \Doctrine\DBAL\DBALException
      */
-    protected function edit($edit, $errorFunc = null, $saveMessageFunc = null) {
+    protected function edit($edit, $errorFunc = null, $saveMessageFunc = null, $stayInForm = null) {
         $entity = $this->setUpEntity();
         $form = $this->setUpForm($entity);
         $request = $this->getRequest();
@@ -107,7 +107,9 @@ abstract class AbstractZfCrudController extends AbstractActionController {
                 } else {
                     $this->saveEntity($entity, $saveMessageFunc);
                 }
-                return $this->redirectIndex();
+                if (!$stayInForm) {
+                    return $this->redirectIndex();
+                }
             }
         }
         return $this->viewModel->setVariables(array(
@@ -230,7 +232,7 @@ abstract class AbstractZfCrudController extends AbstractActionController {
     }
 
     public function getRoute() {
-        $route = lcfirst($this->getNameSpaceRoot());
+        $route = lcfirst($this->getEntityName());
         if ($this->isEntityRoute()) {
             return $route;
         }
